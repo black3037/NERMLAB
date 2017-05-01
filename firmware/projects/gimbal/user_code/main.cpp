@@ -15,9 +15,12 @@ int main(void)
 {
 	/* Initalizations */
 	InitUSART1();
-	global_modes_t global_mode;
-	global_mode = STOP;
-	
+        global_modes_t global_mode;
+        global_mode = INIT;
+        sendDataRequest();
+        lastTicks = ticks;
+        while (ticks-lastTicks > 300);
+
 	/*Setup SysTick */
         sys_timer_setup(10000,4);
 	ticks = 0;
@@ -28,7 +31,7 @@ int main(void)
 	InitBuffer(&rx);
 	
 	/* Start up Message */
-        SendCharArrayUSART1(startText,strlen(startText));
+        //SendCharArrayUSART1(startText,strlen(startText));
 	
 	/* Check rx & tx buffers */
 	while(1)
@@ -36,13 +39,8 @@ int main(void)
 
 		if (haveStr(&rx))
 		{
-			jsmn_parser parser;
-			jsmntok_t tokens[50];
-			jsmn_init(&parser);
 			getStr(&rx, input_string);
-			int numberTokens = jsmn_parse(&parser,input_string,strlen(input_string),tokens,50);
-			extract_value(input_string,"Mode",mode,numberTokens,tokens);
-			
+                        getMode();
 			if (strcmp("RunWaveAutoSave",mode)==0)
 			{
 				SendCharArrayUSART1(runWaveAutoSaveStartUp,strlen(runWaveAutoSaveStartUp));
@@ -53,32 +51,18 @@ int main(void)
 				SendCharArrayUSART1(runWaveContinousStartUp,strlen(runWaveContinousStartUp));
 				global_mode = RUNWAVECONTINUOUS;
 			}
-			else
+			else if (strcmp("DATA REQUEST",mode)==0)
 			{
-				continue;
+				getAllValues();
+                                global_mode = STOP;
 			}
 		}
 		
 		switch(global_mode)
 		{
 			case RUNWAVEAUTOSAVE:
-				global_mode = STOP;
-				
-				/* Get Values from JSON to Run Experiment */
-				jsmn_parser parser;
-				jsmntok_t tokens[50];
-				jsmn_init(&parser);
-				int numberTokens = jsmn_parse(&parser,input_string,strlen(input_string),tokens,50);
-				extract_value(input_string,  "Kp",         Kp,         numberTokens, tokens);
-				extract_value(input_string,  "Ki",         Ki,         numberTokens, tokens);
-				extract_value(input_string,  "Kd",         Kd,         numberTokens, tokens);
-				extract_value(input_string,  "WaveType",   waveType,   numberTokens, tokens);
-				extract_value(input_string,  "Magnitude",  magnitude,  numberTokens, tokens);
-				extract_value(input_string,  "Frequency",  frequency,  numberTokens, tokens);
-				extract_value(input_string,  "Controller", controller, numberTokens, tokens);
-				extract_value(input_string,  "Duration",   duration,   numberTokens, tokens);
-				extract_value(input_string,  "SampleRate", sampleRate, numberTokens, tokens);
-			
+                                getAllValues();
+                                global_mode = STOP;
 				break;
 			
 			case RUNWAVECONTINUOUS:
@@ -150,5 +134,43 @@ void sys_timer_setup(uint32_t sys_tick_frequency, uint8_t priority)
     SCB->SHP[11]=priority<<4;
 }
 
+void sendDataRequest(void)
+{
+    char * initRequest = "{\"NERMLAB\":\"DATA REQUEST\"}";
+    SendCharArrayUSART1(initRequest,strlen(initRequest));
+}
+
+void requestDataParams(void)
+{
+    sendDataRequest();
+    getAllValues();   
+}
+
+void getAllValues(void)
+{
+    jsmn_parser parser;
+    jsmntok_t tokens[50];
+    jsmn_init(&parser);
+    int numTokens = jsmn_parse(&parser,input_string,strlen(input_string),tokens,50);
+    extract_value(input_string,  "Mode",       mode,       numTokens, tokens);
+    extract_value(input_string,  "Kp",         Kp,         numTokens, tokens);
+    extract_value(input_string,  "Ki",         Ki,         numTokens, tokens);
+    extract_value(input_string,  "Kd",         Kd,         numTokens, tokens);
+    extract_value(input_string,  "WaveType",   waveType,   numTokens, tokens);
+    extract_value(input_string,  "Magnitude",  magnitude,  numTokens, tokens);
+    extract_value(input_string,  "Frequency",  frequency,  numTokens, tokens);
+    extract_value(input_string,  "Controller", controller, numTokens, tokens);
+    extract_value(input_string,  "Duration",   duration,   numTokens, tokens);
+    extract_value(input_string,  "SampleRate", sampleRate, numTokens, tokens);
+}
+
+void getMode(void)
+{
+    jsmn_parser parser;
+    jsmntok_t tokens[50];
+    jsmn_init(&parser);
+    int numTokens = jsmn_parse(&parser,input_string,strlen(input_string),tokens,50);
+    extract_value(input_string,  "Mode",       mode,       numTokens, tokens);
+}
 
 

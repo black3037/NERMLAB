@@ -26,14 +26,19 @@ RUNWAVEAUTOSAVE   = 0,
 RUNWAVECONTINUOUS = 1,
 START             = 2,
 STOP              = 3,
+INIT              = 4
 } global_modes_t;
 
 /**************************************************/
 /******************** Prototypes ******************/
 void sys_timer_setup(uint32_t sys_tick_frequency, uint8_t priority);
 extern "C" void sys_tick_callback();
+void requestDataParams(void);
+void sendDataRequest(void);
+void getAllValues(void);
+void getMode(void);
 
-/* Global tracking variables */
+/* Global variables */
 static uint32_t ticks         = 0;
 static uint32_t lastTicks     = 0;
 static uint32_t USARTCount    = 0;
