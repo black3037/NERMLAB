@@ -9,25 +9,19 @@
 */
 #include "main.h"
     
-extern "C" void sys_tick_callback();
-
 int main(void)
 {
 	/* Initalizations */
 	InitUSART1();
         global_modes_t global_mode;
-        global_mode = INIT;
+        global_mode = STOP;
       
 	/*Setup SysTick */
         sys_timer_setup(10000,4);
-	ticks = 0;
-	lastTicks = 0;
-	
+
 	/* Initalize Tx and Rx Buffers */
 	InitBuffer(&tx);
 	InitBuffer(&rx);
-        
-        SendCharArrayUSART1(startText,strlen(startText));
         
         /* Wait for GUI to respond */
         while(1)
@@ -39,6 +33,23 @@ int main(void)
                 if (strcmp("GUI Start",mode)==0)
                 {     
                     break;
+                }
+            }
+            else
+            {
+                /* Check if already connected */
+                char* isConnected = "{\"NERMLAB\":\"ISCONNECTED\"}\n";
+                SendCharArrayUSART1(isConnected,strlen(isConnected));
+                lastTicks = ticks;
+                while(ticks-lastTicks > 100);
+                if (haveStr(&rx)) 
+                {
+                    getStr(&rx, input_string);
+                    getMode();
+                    if (strcmp("True",mode)==0)
+                    {     
+                        break;
+                    }
                 }
             }
         }
@@ -54,37 +65,76 @@ int main(void)
             {
                     getStr(&rx, input_string);
                     getMode();
+                    
+                    /* Parse incoming string and set global mode */
                     if (strcmp("RunWaveAutoSave",mode)==0)
                     {
-                            SendCharArrayUSART1(runWaveAutoSaveStartUp,strlen(runWaveAutoSaveStartUp));
                             global_mode = RUNWAVEAUTOSAVE;
                     }				
                     else if (strcmp("RunWaveContinuous",mode)==0)
                     {
-                            SendCharArrayUSART1(runWaveContinousStartUp,strlen(runWaveContinousStartUp));
                             global_mode = RUNWAVECONTINUOUS;
+                    }
+                    else if (strcmp("Start",mode)==0)
+                    {
+                            global_mode = START;
+                    }
+                    else if (strcmp("Stop",mode)==0)
+                    {
+                            global_mode = STOP;
+                    }
+                    else if (strcmp("Reset Encoders",mode)==0)
+                    {
+                            global_mode = RESETENCODERS;
                     }
                     else if (strcmp("DATA REQUEST",mode)==0)
                     {
-                            getAllValues();
-                            global_mode = STOP;
+                            global_mode = INIT;
+                    }
+                    else if (strcmp("Start and Collect",mode)==0)
+                    {
+                            global_mode = STARTANDCOLLECT;
+                    }
+                    else if (strcmp("Collect Data",mode)==0)
+                    {
+                            global_mode = COLLECTDATA;
+                    }
+                    else
+                    {
+                            throwException(1);
+                            continue;
                     }
             }
             
             switch(global_mode)
             {
+                    case INIT:
+                            getAllValues();
+                            break;
                     case RUNWAVEAUTOSAVE:
                             getAllValues();
+                            // Run experiment
                             global_mode = STOP;
                             break;
-                    
                     case RUNWAVECONTINUOUS:
+                            getAllValues();
+                            // Run experiment
                             break;
-                    
                     case START:
+                            getAllValues();
+                            // Run experiment
                             break;
-                    
                     case STOP:
+                             // Stop process
+                            break;
+                    case RESETENCODERS:
+                            // Reset encoders
+                            break;
+                    case STARTANDCOLLECT:
+                            // Start experiment
+                            break;
+                    case COLLECTDATA:
+                            // Start experiment
                             break;
             }
 	

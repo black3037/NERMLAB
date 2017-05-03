@@ -13,6 +13,7 @@
 #include "circularBuffer.h"
 #include <string.h>
 #include "jsmn.h"
+#include "error.h"
 
 /**************************************************/
 /******************** Defines *********************/
@@ -26,7 +27,11 @@ RUNWAVEAUTOSAVE   = 0,
 RUNWAVECONTINUOUS = 1,
 START             = 2,
 STOP              = 3,
-INIT              = 4
+MANUAL            = 4,
+COLLECTDATA       = 5,
+STARTANDCOLLECT   = 6,
+RESETENCODERS     = 7,
+INIT              = 8
 } global_modes_t;
 
 /**************************************************/

@@ -2124,6 +2124,9 @@
       <name>$PROJ_DIR$\user_code\encoder.cpp</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\user_code\error.cpp</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\user_code\jsmn.c</name>
     </file>
     <file>
