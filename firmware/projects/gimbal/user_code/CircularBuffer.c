@@ -74,6 +74,7 @@ void putStr(commBuffer_t* comm, char* str)
 		putChar(comm, str[i]);
 	}
 	putChar(comm,'\n');
+        putChar(comm,'\0');
 }
 
 void getStr(commBuffer_t* comm, char* str)

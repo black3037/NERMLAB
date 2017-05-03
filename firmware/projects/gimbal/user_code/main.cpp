@@ -17,10 +17,7 @@ int main(void)
 	InitUSART1();
         global_modes_t global_mode;
         global_mode = INIT;
-        sendDataRequest();
-        lastTicks = ticks;
-        while (ticks-lastTicks > 300);
-
+      
 	/*Setup SysTick */
         sys_timer_setup(10000,4);
 	ticks = 0;
@@ -29,51 +26,67 @@ int main(void)
 	/* Initalize Tx and Rx Buffers */
 	InitBuffer(&tx);
 	InitBuffer(&rx);
+        
+        SendCharArrayUSART1(startText,strlen(startText));
+        
+        /* Wait for GUI to respond */
+        while(1)
+        {
+            if (haveStr(&rx)) 
+            {
+                getStr(&rx, input_string);
+                getMode();
+                if (strcmp("GUI Start",mode)==0)
+                {     
+                    break;
+                }
+            }
+        }
+        
+        /* Send out a request to GUI for starting values */
+        sendDataRequest();
 	
-	/* Start up Message */
-        //SendCharArrayUSART1(startText,strlen(startText));
-	
-	/* Check rx & tx buffers */
+        /* Loop waiting for user input */
 	while(1)
 	{
 
-		if (haveStr(&rx))
-		{
-			getStr(&rx, input_string);
-                        getMode();
-			if (strcmp("RunWaveAutoSave",mode)==0)
-			{
-				SendCharArrayUSART1(runWaveAutoSaveStartUp,strlen(runWaveAutoSaveStartUp));
-				global_mode = RUNWAVEAUTOSAVE;
-			}				
-			else if (strcmp("RunWaveContinuous",mode)==0)
-			{
-				SendCharArrayUSART1(runWaveContinousStartUp,strlen(runWaveContinousStartUp));
-				global_mode = RUNWAVECONTINUOUS;
-			}
-			else if (strcmp("DATA REQUEST",mode)==0)
-			{
-				getAllValues();
-                                global_mode = STOP;
-			}
-		}
-		
-		switch(global_mode)
-		{
-			case RUNWAVEAUTOSAVE:
-                                getAllValues();
-                                global_mode = STOP;
-				break;
-			
-			case RUNWAVECONTINUOUS:
-				break;
-			
-			case START:
-				break;
-			
-			case STOP:
-				break;
-		}
+            if (haveStr(&rx))
+            {
+                    getStr(&rx, input_string);
+                    getMode();
+                    if (strcmp("RunWaveAutoSave",mode)==0)
+                    {
+                            SendCharArrayUSART1(runWaveAutoSaveStartUp,strlen(runWaveAutoSaveStartUp));
+                            global_mode = RUNWAVEAUTOSAVE;
+                    }				
+                    else if (strcmp("RunWaveContinuous",mode)==0)
+                    {
+                            SendCharArrayUSART1(runWaveContinousStartUp,strlen(runWaveContinousStartUp));
+                            global_mode = RUNWAVECONTINUOUS;
+                    }
+                    else if (strcmp("DATA REQUEST",mode)==0)
+                    {
+                            getAllValues();
+                            global_mode = STOP;
+                    }
+            }
+            
+            switch(global_mode)
+            {
+                    case RUNWAVEAUTOSAVE:
+                            getAllValues();
+                            global_mode = STOP;
+                            break;
+                    
+                    case RUNWAVECONTINUOUS:
+                            break;
+                    
+                    case START:
+                            break;
+                    
+                    case STOP:
+                            break;
+            }
 	
 	}
 
