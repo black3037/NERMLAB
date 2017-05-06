@@ -20,3 +20,4 @@ const float MAX_VOLTAGE =  1.224745f*(MAX_DUTY - 0.5f)*2.0f*VBUS;
 
 // q-axis voltage used during calibration of commutation
 const float CALIBRATE_VOLTAGE = 5.0f;
+

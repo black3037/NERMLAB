@@ -14,6 +14,16 @@
 #include <string.h>
 #include "jsmn.h"
 #include "error.h"
+#include "pwm_out_advanced_timer.h"
+#include "digital_out.h"
+#include "trigtables.h"
+#include "physical_constants.h"
+#include "math.h"
+#include "math_util.h"
+#include "pwm_measurement_timer.h"
+#include "nerm_lab_constants.h"
+#include "motor_commutation_calibration.h"
+#include "encoder.h"
 
 /**************************************************/
 /******************** Defines *********************/
@@ -47,6 +57,10 @@ void getMode(void);
 static uint32_t ticks         = 0;
 static uint32_t lastTicks     = 0;
 static uint32_t USARTCount    = 0;
+float encoderAngle            = 0.0f;
+float lastEncoderAngle        = 0.0f;
+char JSONOutputString[MAX_STRLEN+1];
+char encoderAngle2String[MAX_STRLEN+1];
 
 /* Start up Messages */
 char* startText               = "{\"NERMLAB\":\"Connected!\"}\n";
@@ -68,10 +82,17 @@ char controller[254];
 char duration  [254];
 char sampleRate[254];
 
-
 /* Global Structs */
 commBuffer_t rx;
 commBuffer_t tx;
+
+/* Global Objects */
+PwmOutAdvancedTimer motor_pwm;
+PwmMeasurementTimer as5048_input(1);
+DigitalOut enableA(PC10);
+DigitalOut enableB(PC11);
+DigitalOut enableC(PC12);
+Encoder encoder(EncoderA);
 
 /* Test Messages */
 char A[3][4]=

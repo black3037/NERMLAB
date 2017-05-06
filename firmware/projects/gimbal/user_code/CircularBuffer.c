@@ -61,8 +61,8 @@ void putChar(commBuffer_t* comm, char ch)
 char getChar(commBuffer_t* comm)
 {
 	char out=comm->buffer[comm->tail];
+        comm->tail = (comm->tail + 1)%MAXCOMMBUFFER;
 	comm->size--;
-	comm->tail = (comm->tail + 1)%MAXCOMMBUFFER;
 	return out;
 }
 
@@ -74,7 +74,6 @@ void putStr(commBuffer_t* comm, char* str)
 		putChar(comm, str[i]);
 	}
 	putChar(comm,'\n');
-        putChar(comm,'\0');
 }
 
 void getStr(commBuffer_t* comm, char* str)

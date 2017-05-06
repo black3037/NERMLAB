@@ -35,13 +35,13 @@ int main(void)
                     break;
                 }
             }
+            /* Need to fix this. Sends out reqest to GUI to make sure its not already connected
             else
             {
-                /* Check if already connected */
                 char* isConnected = "{\"NERMLAB\":\"ISCONNECTED\"}\n";
                 SendCharArrayUSART1(isConnected,strlen(isConnected));
                 lastTicks = ticks;
-                while(ticks-lastTicks > 100);
+                while(ticks-lastTicks > 10000);
                 if (haveStr(&rx)) 
                 {
                     getStr(&rx, input_string);
@@ -52,15 +52,16 @@ int main(void)
                     }
                 }
             }
+            */
         }
-        
+
+
         /* Send out a request to GUI for starting values */
         sendDataRequest();
 	
         /* Loop waiting for user input */
 	while(1)
 	{
-
             if (haveStr(&rx))
             {
                     getStr(&rx, input_string);
@@ -128,7 +129,9 @@ int main(void)
                              // Stop process
                             break;
                     case RESETENCODERS:
-                            // Reset encoders
+                            encoderAngle = 0.0f;
+                            encoder.set(0);
+                            global_mode = STOP;
                             break;
                     case STARTANDCOLLECT:
                             // Start experiment
@@ -137,9 +140,24 @@ int main(void)
                             // Start experiment
                             break;
             }
-	
+            
+	    if (ticks - lastTicks > 1000)
+            {
+                  ftoa(encoderAngle,encoderAngle2String);
+                  pack_json("{s:s,s:s}",JSONOutputString,"NERMLAB","Encoder","Angle",encoderAngle2String);
+                  if (encoderAngle != lastEncoderAngle)
+                  {
+                      putStr(&tx,JSONOutputString);
+                      USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
+                  }
+                  else
+                  {
+                      continue;
+                  }
+                  lastTicks = ticks;
+                  lastEncoderAngle = encoderAngle;
+            }
 	}
-
 }
 
 extern "C" void USART1_IRQHandler(void) 
@@ -168,7 +186,7 @@ extern "C" void USART1_IRQHandler(void)
 		{
 			char c = getChar(&tx);
 			USART1->DR = c;
-		}
+                }
 		if(tx.tail == tx.head)
 		{
 			USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
@@ -178,7 +196,8 @@ extern "C" void USART1_IRQHandler(void)
 
 extern "C" void sys_tick_callback()
 {
-  ticks++;
+    ticks++;
+    encoderAngle = encoder.read()*ENCODER_2_ANGLE*RAD2DEG;
 }
 
 
@@ -235,5 +254,6 @@ void getMode(void)
     int numTokens = jsmn_parse(&parser,input_string,strlen(input_string),tokens,50);
     extract_value(input_string,  "Mode",       mode,       numTokens, tokens);
 }
+
 
 

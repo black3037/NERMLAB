@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,8 +76,8 @@ int check_JSMN_error(int numtok, char* location);
 void extract_value(char* JSONSTR, char* key, char *target, int numtok1, jsmntok_t *tokens1);
 int pack_json(char* format, char* target, ...);
 void output_string(char* s);	
-	
 
+	
 #ifdef __cplusplus
 }
 #endif

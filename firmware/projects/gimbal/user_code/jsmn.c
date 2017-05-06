@@ -327,3 +327,57 @@ void extract_value(char* JSONSTR, char* key, char *target, int numtok1, jsmntok_
 	}
 }
 
+int pack_json(char* format, char* target, ...) {//works similar to printf: example format string "{s:b,s:{s:[n,n,n,n]}}"  b is bool, n is float, s is string, returns 1 on failure
+	char* s;
+	float f;
+	char m[100];
+
+	va_list arg;
+	va_start(arg, target);
+
+	int z = 0;
+	for (int j = 0; j < strlen(format); j++) {
+		if ((format[j] == '{') || (format[j] == '}') || (format[j] == ':') || (format[j] == ',') || (format[j] == '"') || (format[j] == ']') || (format[j] == '[')) {
+			target[z] = format[j];
+			z++;
+		}
+		else {
+			if (format[j] == 's') {
+				s = va_arg(arg, char*);
+				target[z] = '"';
+				z++;
+				for (int n = 0; n < strlen(s); n++) {
+					target[z] = s[n];
+					z++;
+				}
+				target[z] = '"';
+				z++;
+			}
+			if (format[j] == 'n') {
+				f = va_arg(arg, double);
+				sprintf(m, "%g", f);
+				for (int n = 0; n < strlen(m); n++) {
+					target[z] = m[n];
+					z++;
+				}
+			}
+			if (format[j] == 'b') {
+				s = va_arg(arg, char*);
+				if ((s[0] == 't') || (s[0] == 'f')) {
+					for (int n = 0; n < strlen(s); n++) {
+						target[z] = s[n];
+						z++;
+					}
+				}
+				else {
+					return 1;
+				}
+			}
+		}
+	}
+	va_end(arg);
+	target[z] = '\0';
+	return 0;
+}
+
+
