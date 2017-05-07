@@ -2133,6 +2133,9 @@
       <name>$PROJ_DIR$\user_code\main.cpp</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\user_code\message_parser.cpp</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\user_code\motor_commutation_calibration.cpp</name>
     </file>
     <file>

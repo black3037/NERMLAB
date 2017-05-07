@@ -139,6 +139,7 @@ void reverse(char *str, int len)
 int intToStr(int x, char str[], int d)
 {
     int i = 0;
+
     while (x)
     {
         str[i++] = (x%10) + '0';
@@ -158,6 +159,7 @@ int intToStr(int x, char str[], int d)
 // Converts a floating point number to string.
 void ftoa(float n, char *res)
 {
+
     int afterpoint = 3;
     // Extract integer part
     int ipart = (int)n;
@@ -167,12 +169,15 @@ void ftoa(float n, char *res)
  
     // convert integer part to string
     int i = intToStr(ipart, res, 0);
+    
+    
  
     // check for display option after point
     if (afterpoint != 0)
     {
+
         res[i] = '.';  // add dot
- 
+
         // Get the value of fraction part upto given no.
         // of points after dot. The third parameter is needed
         // to handle cases like 233.007

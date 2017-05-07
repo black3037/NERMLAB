@@ -13,5 +13,18 @@ extern const float CALIBRATE_VOLTAGE;
 extern const float CURRENT_SENSE_SCALE;
 extern const float CURRENT_SENSE_OFFSET;
 extern const float RAD_2_DEG;
+extern const float MAX_VOLTAGE;
+
+/* Global Params */
+extern char mode      [254];
+extern char Kp        [254];
+extern char Ki        [254];
+extern char Kd        [254];
+extern char waveType  [254];
+extern char magnitude [254];
+extern char frequency [254];
+extern char controller[254];
+extern char duration  [254];
+extern char sampleRate[254];
 
 #endif

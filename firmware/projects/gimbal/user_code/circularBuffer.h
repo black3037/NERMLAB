@@ -11,12 +11,10 @@
 extern "C" {
 #endif
 
+#define MAXCOMMBUFFER 2048
+  
 /* Includes */
 #include <string.h>
-
-/* Global Variables */
-#define MAXCOMMBUFFER 2048
-#define MAX_STRLEN    2048
 
 typedef struct _commBuffer_t {
 	uint32_t head;
